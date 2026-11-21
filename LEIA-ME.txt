@@ -1,28 +1,13 @@
-FOTOPRO SIMPLES - PACOTE COMPLETO
+FOTOPRO — CORRECAO DO ENVIO DE PDF
 
-PUBLIQUE TODOS ESTES ARQUIVOS JUNTOS NA RAIZ DO REPOSITORIO:
-index.html
-style.css
-config.js
-app.js
-pdf-local.js
-LEIA-ME.txt (opcional)
+O botao antigo Abrir e-mail foi removido: links mailto NAO anexam arquivos.
 
-PERSONALIZACAO:
-1. Abra config.js no GitHub e clique no lapis para editar.
-2. Altere nomeEstudio, emailDestino e textoContrato.
-3. Salve com Commit changes.
-4. Confira Settings > Pages > Deploy from a branch > main / (root).
-5. Atualize seu site com Ctrl+F5 e teste usando dados FICTICIOS.
+1. Edite config.js e coloque o nome do estudio, email e texto final do contrato.
+2. Envie index.html, style.css, config.js, app.js e pdf-local.js juntos para a pasta raiz do GitHub Pages.
+3. Atualize o site e faca um teste em um celular.
+4. Apos assinar, use Compartilhar PDF. Escolha um aplicativo de e-mail disponivel, confira o anexo e CONFIRME o envio.
+5. Se o compartilhamento com arquivo nao for suportado, o site baixa o PDF e orienta a anexar manualmente.
 
-IMPORTANTE:
-- Nao ha login ou painel de fotografos nesta versao simples.
-- Nao precisa de Supabase, Node.js ou um arquivo .env.
-- CPF e assinatura sao processados no navegador, sem envio ao servidor.
-- O cliente salva o PDF e precisa compartilhar/enviar manualmente.
-- O botao Abrir e-mail NAO anexa automaticamente o PDF.
-- O PDF tem paginas em imagem, sem texto selecionavel.
-- Substitua o modelo de contrato antes de usar profissionalmente.
-- A assinatura desenhada nao verifica a identidade do cliente.
-- O gerador de PDF esta no arquivo pdf-local.js, sem biblioteca de terceiros.
-- Nao deixe arquivos antigos homonimos em subpastas esperando que sejam usados.
+IMPORTANTE: O site nao envia e-mail automaticamente e nao consegue confirmar entrega. Para envio automatico sem acoes do cliente, e necessario um servico de envio com backend ou API segura. Nao coloque senha de e-mail ou chave secreta em config.js ou em arquivos publicos do GitHub.
+
+O contrato em config.js e apenas um modelo demonstrativo. Revise juridicamente antes de uso real.

@@ -2,7 +2,7 @@
 // ALTERE SOMENTE AQUI PARA PERSONALIZAR O SITE
 window.FOTOPRO_CONFIG = {
   nomeEstudio: 'Ejigbo Fotografia',
-  emailDestino: 'Syufox@gmail.com',
+  emailDestino: 'syufox@gmail.com',
   textoContrato: `CONTRATO DE PRESTAÇÃO DE SERVIÇOS FOTOGRÁFICOS — MODELO DE DEMONSTRAÇÃO
 
 CONTRATANTE: {{NOME}}, CPF {{CPF}}.

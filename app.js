@@ -32,5 +32,20 @@ el('finish').onclick=async()=>{
   finally{el('finish').disabled=false}
 };
 function baixar(){if(!pdfBlob)return;let u=URL.createObjectURL(pdfBlob),a=document.createElement('a');a.href=u;a.download=pdfName;a.click();setTimeout(()=>URL.revokeObjectURL(u),4000)}el('baixar').onclick=baixar;
-el('compartilhar').onclick=async()=>{if(!pdfBlob)return;const f=new File([pdfBlob],pdfName,{type:'application/pdf'});try{if(navigator.canShare?.({files:[f]})){await navigator.share({files:[f],title:'Contrato assinado',text:'Segue contrato assinado em PDF para '+CONFIG.nomeEstudio+'.'});return}}catch(e){if(e.name==='AbortError')return}baixar();alert('O compartilhamento de arquivos não está disponível neste navegador. O PDF foi baixado. Abra seu e-mail e anexe o arquivo manualmente.')};
-el('email').onclick=()=>{const destino=CONFIG.emailDestino.includes('EXEMPLO.COM')?'':CONFIG.emailDestino;location.href='mailto:'+encodeURIComponent(destino)+'?subject='+encodeURIComponent('Contrato assinado - '+clean(el('nome').value))+'&body='+encodeURIComponent('Olá! Segue em anexo meu contrato assinado em PDF. Se o arquivo não estiver anexado, selecione o PDF que baixei no celular.');};
+el('compartilhar').onclick=async()=>{
+  if(!pdfBlob)return;
+  const arquivo = new File([pdfBlob], pdfName, {type:'application/pdf'});
+  const aviso = 'Escolha Gmail ou outro app de e-mail na lista de compartilhamento e CONFIRME o envio. O FotoPro nao verifica se o e-mail foi enviado.';
+  if (navigator.share && navigator.canShare && navigator.canShare({files:[arquivo]})) {
+    try {
+      await navigator.share({files:[arquivo], title:'Contrato assinado em PDF', text:'Contrato assinado para '+CONFIG.nomeEstudio});
+      notice('Compartilhamento aberto. Confira no aplicativo escolhido se o arquivo esta anexado e confirme o envio.');
+      return;
+    } catch(err) {
+      if(err.name==='AbortError') {notice('Compartilhamento cancelado. Voce ainda pode baixar o PDF.'); return;}
+      console.error(err);
+    }
+  }
+  baixar();
+  notice('Seu navegador nao permite anexar diretamente ao compartilhar. O PDF foi baixado: abra seu e-mail, crie uma mensagem para '+CONFIG.emailDestino+' e adicione o arquivo em Anexar.',true);
+};
