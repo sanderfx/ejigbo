@@ -1,18 +1,16 @@
-FOTOPRO — ASSINATURA CORRIGIDA (VERSAO COMPLETA)
+FOTOPRO — ASSINATURA SEM ESTICAR (PACOTE COMPLETO)
 
-O problema era o esticamento horizontal da assinatura no PDF.
-Nesta versao, a assinatura e recortada nas bordas vazias, mantem suas proporcoes,
-fica menor e centralizada. O canvas captura em resolucao mais alta.
+O PDF utiliza agora a mesma escala para largura e altura da assinatura,
+recortando somente o espaço vazio. Tamanho limitado a aproximadamente
+55 mm de largura e 16 mm de altura, centralizado no campo de assinatura.
+A captura no celular respeita o tamanho real do quadro desenhado.
 
-INSTALACAO:
-1. Extraia este ZIP.
-2. No GitHub, substitua app.js e pdf-local.js na pasta onde esta index.html.
-3. Os outros arquivos estao incluidos caso precise do pacote completo.
-4. SE JA PERSONALIZOU SEU config.js, NAO O SUBSTITUA.
-5. Clique em Commit changes e atualize o site (Ctrl+F5).
-6. Faca uma nova assinatura de teste e baixe um novo PDF.
+PARA ATUALIZAR NO GITHUB
+1. Extraia o ZIP.
+2. Substitua index.html, app.js e pdf-local.js na mesma pasta.
+3. Se o seu config.js ja contem seu contrato e email, MANTENHA O ANTIGO.
+4. Clique em Commit changes.
+5. Reabra o site, faca outra assinatura e gere NOVO PDF.
 
-O PDF antigo nao pode ser corrigido retroativamente: e preciso gerar outro.
-O PDF possui paginas em imagem, nao texto selecionavel.
-O compartilhamento por e-mail depende de acao do cliente e compatibilidade do celular.
-Nao ha envio automatico nem armazenamento no servidor.
+IMPORTANTE: PDF gerado anteriormente nao muda apos atualizar o site.
+O site nao envia e-mail automaticamente, e o cliente confirma o compartilhamento.

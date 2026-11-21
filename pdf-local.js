@@ -60,18 +60,25 @@ function renderDocument({texto,nome,cpf,assinatura,estudio}){
         }
       }
       if(xMax<0){reject(new Error('Assinatura vazia.'));return;}
+      // Margem pequena para preservar as extremidades do traco.
+      const pad=Math.max(6,Math.round(Math.min(sample.width,sample.height)*0.012));
+      xMin=Math.max(0,xMin-pad);yMin=Math.max(0,yMin-pad);
+      xMax=Math.min(sample.width-1,xMax+pad);yMax=Math.min(sample.height-1,yMax+pad);
       const srcW=xMax-xMin+1,srcH=yMax-yMin+1;
-      // A assinatura fica discreta: altura máxima de 90 px (no PDF de alta resolução).
-      // Respeitamos a proporção natural e evitamos ampliar além do original.
-      const maxW=490,maxH=95;
+      // Importante: drawImage recebe UMA UNICA ESCALA para X e Y.
+      // Nao transforme a assinatura em uma caixa de largura/altura fixas.
+      // O limite em pixels corresponde a aproximadamente 55 x 16 mm no A4.
+      const maxW=330,maxH=95;
       const factor=Math.min(maxW/srcW,maxH/srcH,1);
-      const dw=Math.max(1,srcW*factor),dh=Math.max(1,srcH*factor);
-      const boxX=M,boxY=page.y,boxW=W-2*M,boxH=147;
+      const dw=srcW*factor,dh=srcH*factor;
+      const boxX=M,boxY=page.y,boxW=W-2*M,boxH=155;
       c.strokeStyle='#d6dee8';c.lineWidth=1.5;
       c.strokeRect(boxX,boxY,boxW,boxH);
       const destX=boxX+(boxW-dw)/2;
       const destY=boxY+(boxH-dh)/2;
-      c.drawImage(sigImg,xMin,yMin,srcW,srcH,destX,destY,dw,dh);
+      c.imageSmoothingEnabled=true;
+      c.imageSmoothingQuality='high';
+      c.drawImage(sample,xMin,yMin,srcW,srcH,destX,destY,dw,dh);
       page.y+=166;
       drawLine('Nome: '+nome,{size:21,space:0});
       drawLine('CPF: '+cpf,{size:21,space:0});

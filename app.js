@@ -2,7 +2,31 @@ const CONFIG = window.FOTOPRO_CONFIG;
 if (!CONFIG) throw new Error("Arquivo config.js nao encontrado.");
 const el = x=>document.getElementById(x);
 const ctx=el('sig').getContext('2d'); const canvas=el('sig'); let drew=false,active=false,pdfBlob=null,pdfName='';
-function setupCanvas(){ const rect=canvas.getBoundingClientRect(), scale=Math.max(2,window.devicePixelRatio||1); const old=drew?canvas.toDataURL():null; canvas.width=Math.round(rect.width*scale); canvas.height=Math.round(180*scale); ctx.setTransform(scale,0,0,scale,0,0);ctx.strokeStyle='#122037';ctx.lineWidth=2.3;ctx.lineCap='round';ctx.lineJoin='round';if(old){let im=new Image();im.onload=()=>ctx.drawImage(im,0,0,rect.width,180);im.src=old;}}
+function setupCanvas(){
+  // Resoluçao interna proporcional ao tamanho visivel (sem achatamento).
+  const rect=canvas.getBoundingClientRect();
+  const w=Math.max(1,Math.round(rect.width)),h=Math.max(1,Math.round(rect.height));
+  const scale=Math.min(3,Math.max(2,window.devicePixelRatio||1));
+  const old=drew?canvas.toDataURL('image/png'):null;
+  const oldW=canvas.width,oldH=canvas.height;
+  canvas.width=Math.round(w*scale);canvas.height=Math.round(h*scale);
+  ctx.setTransform(canvas.width/w,0,0,canvas.height/h,0,0);
+  ctx.strokeStyle='#122037';ctx.lineWidth=2.3;
+  ctx.lineCap='round';ctx.lineJoin='round';
+  if(old){
+    const im=new Image();
+    im.onload=()=>{
+      // Manter proporcao ao redimensionar a janela: sem esticar o desenho antigo.
+      const oldRatio=oldW/oldH,newRatio=canvas.width/canvas.height;
+      const destW=newRatio>oldRatio ? canvas.height*oldRatio : canvas.width;
+      const destH=newRatio>oldRatio ? canvas.height : canvas.width/oldRatio;
+      ctx.save();ctx.setTransform(1,0,0,1,0,0);
+      ctx.drawImage(im,(canvas.width-destW)/2,(canvas.height-destH)/2,destW,destH);
+      ctx.restore();
+    };
+    im.src=old;
+  }
+}
 function point(e){let r=canvas.getBoundingClientRect();return {x:e.clientX-r.left,y:e.clientY-r.top}}
 canvas.addEventListener('pointerdown',e=>{e.preventDefault();canvas.setPointerCapture(e.pointerId);active=true;const p=point(e);ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(p.x+.1,p.y+.1);ctx.stroke();drew=true});canvas.addEventListener('pointermove',e=>{if(!active)return;e.preventDefault();const p=point(e);ctx.lineTo(p.x,p.y);ctx.stroke()});['pointerup','pointercancel','lostpointercapture'].forEach(v=>canvas.addEventListener(v,()=>active=false));
 el('clear').onclick=()=>{ctx.clearRect(0,0,canvas.width,canvas.height);drew=false};
