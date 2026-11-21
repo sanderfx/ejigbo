@@ -10,7 +10,7 @@ const bytes=(value)=>encoder.encode(value);
 function concat(parts){let size=0;for(const b of parts)size+=b.length;const out=new Uint8Array(size);let at=0;for(const b of parts){out.set(b,at);at+=b.length}return out;}
 function jpgBytes(canvas){const base64=canvas.toDataURL('image/jpeg',0.94).split(',')[1];const binary=atob(base64);const out=new Uint8Array(binary.length);for(let i=0;i<binary.length;i++)out[i]=binary.charCodeAt(i);return out;}
 function makePage(){const canvas=document.createElement('canvas');canvas.width=W;canvas.height=H;const c=canvas.getContext('2d');c.fillStyle='#ffffff';c.fillRect(0,0,W,H);c.fillStyle='#12233e';c.textBaseline='top';return {canvas,c,y:135};}
-function renderDocument({texto,nome,cpf,assinatura,estudio}){
+function renderDocument({texto,nome,cpf,assinatura,estudio,selfie}){
   const pages=[];let page=makePage();pages.push(page);
   function nextPage(){page=makePage();pages.push(page)}
   function ensure(height){if(page.y+height>H-135)nextPage()}
@@ -83,6 +83,9 @@ function renderDocument({texto,nome,cpf,assinatura,estudio}){
       drawLine('Nome: '+nome,{size:21,space:0});
       drawLine('CPF: '+cpf,{size:21,space:0});
       drawLine('Aceite em: '+new Date().toLocaleString('pt-BR'),{size:21,space:0});
+      // Selfie opcional: pagina separada para nao comprimir nem esticar a imagem.
+      // Sem reconhecimento facial ou alegacao de verificacao de identidade.
+      const finalize=()=>{
       pages.forEach((pg,i)=>{
         const c=pg.c;c.fillStyle='#d9e0e8';c.fillRect(M,H-94,W-2*M,2);
         c.font='18px Arial, sans-serif';c.fillStyle='#637185';
@@ -90,6 +93,32 @@ function renderDocument({texto,nome,cpf,assinatura,estudio}){
         c.fillText(`${i+1}/${pages.length}`,W-M-42,H-77);
       });
       resolve(pages.map(pg=>jpgBytes(pg.canvas)));
+      };
+      if(!selfie){finalize();return;}
+      const foto=new Image();
+      foto.onload=()=>{
+        nextPage();
+        const c=page.c;
+        c.fillStyle='#ff891c';c.fillRect(M,62,70,9);
+        c.fillStyle='#14243c';c.font='bold 32px Arial, sans-serif';
+        c.fillText('REGISTRO VISUAL OPCIONAL',M,88);
+        page.y=170;
+        drawLine('Selfie fornecida voluntariamente pelo contratante para compor esta copia do contrato.',{size:23,space:17});
+        drawLine('Este registro nao comprova a titularidade do CPF e nao envolve reconhecimento facial.',{size:21,color:'#6b7789',space:20});
+        // Escala unica para largura/altura, sem deformacao.
+        const maxW=W-2*M,maxH=850;
+        const scale=Math.min(maxW/foto.naturalWidth,maxH/foto.naturalHeight);
+        const drawW=Math.round(foto.naturalWidth*scale),drawH=Math.round(foto.naturalHeight*scale);
+        const x=M+(maxW-drawW)/2,y=page.y+20;
+        c.fillStyle='#eff3f8';c.fillRect(M,page.y,maxW,Math.max(100,drawH+40));
+        c.drawImage(foto,x,y,drawW,drawH);
+        page.y+=drawH+72;
+        drawLine('Nome declarado: '+nome,{size:20,space:2});
+        drawLine('Consentimento para incluir selfie: SIM',{size:20,space:0});
+        finalize();
+      };
+      foto.onerror=()=>reject(new Error('Nao foi possivel incluir a selfie no PDF.'));
+      foto.src=selfie;
     };
     sigImg.onerror=()=>reject(new Error('Nao foi possivel ler a assinatura.'));
     sigImg.src=assinatura;

@@ -36,6 +36,49 @@ function formatCpf(s){let d=s.replace(/\D/g,'').slice(0,11);return d.replace(/^(
 el('cpf').addEventListener('input',e=>e.target.value=formatCpf(e.target.value));
 function texto(nome,cpf){return CONFIG.textoContrato.replaceAll('{{NOME}}',nome).replaceAll('{{CPF}}',cpf).replaceAll('{{ESTUDIO}}',CONFIG.nomeEstudio)}
 function updatePreview(){el('contrato').textContent=texto(clean(el('nome').value)||'[NOME DO CLIENTE]',el('cpf').value||'[CPF]')}
+// A imagem nunca e enviada para um servidor: apenas memoria temporaria do navegador.
+let selfieData=null, selfiePreviewUrl=null;
+const selfieInput=el('selfie'), selfieConsent=el('consentSelfie');
+function clearSelfie(){
+  selfieData=null;selfieInput.value='';el('selfieBox').classList.add('hidden');
+  el('selfiePreview').removeAttribute('src');
+  if(selfiePreviewUrl){URL.revokeObjectURL(selfiePreviewUrl);selfiePreviewUrl=null;}
+}
+selfieConsent.addEventListener('change',()=>{
+  selfieInput.disabled=!selfieConsent.checked;
+  if(!selfieConsent.checked)clearSelfie();
+});
+el('removeSelfie').addEventListener('click',clearSelfie);
+selfieInput.addEventListener('change',async()=>{
+  clearSelfieImageOnly();
+  const file=selfieInput.files&&selfieInput.files[0];
+  if(!file)return;
+  if(!selfieConsent.checked){clearSelfie();return notice('Autorize a inclusão da selfie para usar a foto.',true);}
+  if(!file.type.startsWith('image/')){clearSelfie();return notice('Escolha uma imagem válida.',true);}
+  if(file.size>12*1024*1024){clearSelfie();return notice('A foto é muito grande. Escolha uma imagem com até 12 MB.',true);}
+  try{
+    const url=URL.createObjectURL(file), img=new Image();
+    await new Promise((resolve,reject)=>{img.onload=resolve;img.onerror=()=>reject(Error('imagem inválida'));img.src=url;});
+    if(!img.naturalWidth||!img.naturalHeight)throw Error('imagem vazia');
+    // Compactar para limitar tamanho do PDF sem distorcer a foto.
+    const scale=Math.min(1,1100/Math.max(img.naturalWidth,img.naturalHeight));
+    const pic=document.createElement('canvas');
+    pic.width=Math.max(1,Math.round(img.naturalWidth*scale));
+    pic.height=Math.max(1,Math.round(img.naturalHeight*scale));
+    const context=pic.getContext('2d');context.fillStyle='#fff';context.fillRect(0,0,pic.width,pic.height);
+    context.drawImage(img,0,0,pic.width,pic.height);
+    selfieData=pic.toDataURL('image/jpeg',0.88);
+    URL.revokeObjectURL(url);
+    selfiePreviewUrl=URL.createObjectURL(file);
+    el('selfiePreview').src=selfiePreviewUrl;
+    el('selfieBox').classList.remove('hidden');
+  }catch(error){console.error(error);clearSelfie();notice('Não foi possível abrir esta foto. Tente uma imagem JPG ou PNG.',true);}
+});
+function clearSelfieImageOnly(){
+  selfieData=null;el('selfieBox').classList.add('hidden');el('selfiePreview').removeAttribute('src');
+  if(selfiePreviewUrl){URL.revokeObjectURL(selfiePreviewUrl);selfiePreviewUrl=null;}
+}
+
 el('nome').addEventListener('input',updatePreview);el('cpf').addEventListener('input',updatePreview);updatePreview();setupCanvas();window.addEventListener('resize',()=>{if(!drew)setupCanvas()});
 function notice(s,bad=false){el('msg').textContent=s;el('msg').className='notice show '+(bad?'bad':'ok')}
 el('finish').onclick=async()=>{
@@ -47,7 +90,7 @@ el('finish').onclick=async()=>{
   if(!window.FotoProPDF)return notice('Arquivo pdf-local.js não encontrado. Envie os dois arquivos ao GitHub.',true);
   try{
     el('finish').disabled=true;
-    pdfBlob=await window.FotoProPDF.create({texto:texto(nome,cpf),nome,cpf,assinatura:canvas.toDataURL('image/png'),estudio:CONFIG.nomeEstudio});
+    pdfBlob=await window.FotoProPDF.create({texto:texto(nome,cpf),nome,cpf,assinatura:canvas.toDataURL('image/png'),estudio:CONFIG.nomeEstudio,selfie:selfieConsent.checked?selfieData:null});
     pdfName='Contrato_'+nome.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9]+/g,'_').slice(0,55)+'.pdf';
     el('resultado').classList.remove('hidden');
     el('resultado').scrollIntoView({behavior:'smooth'});
