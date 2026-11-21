@@ -8,7 +8,7 @@ const W=1240,H=1754, M=95, PAGE_W=595.28, PAGE_H=841.89;
 const encoder=new TextEncoder();
 const bytes=(value)=>encoder.encode(value);
 function concat(parts){let size=0;for(const b of parts)size+=b.length;const out=new Uint8Array(size);let at=0;for(const b of parts){out.set(b,at);at+=b.length}return out;}
-function jpgBytes(canvas){const base64=canvas.toDataURL('image/jpeg',0.81).split(',')[1];const binary=atob(base64);const out=new Uint8Array(binary.length);for(let i=0;i<binary.length;i++)out[i]=binary.charCodeAt(i);return out;}
+function jpgBytes(canvas){const base64=canvas.toDataURL('image/jpeg',0.94).split(',')[1];const binary=atob(base64);const out=new Uint8Array(binary.length);for(let i=0;i<binary.length;i++)out[i]=binary.charCodeAt(i);return out;}
 function makePage(){const canvas=document.createElement('canvas');canvas.width=W;canvas.height=H;const c=canvas.getContext('2d');c.fillStyle='#ffffff';c.fillRect(0,0,W,H);c.fillStyle='#12233e';c.textBaseline='top';return {canvas,c,y:135};}
 function renderDocument({texto,nome,cpf,assinatura,estudio}){
   const pages=[];let page=makePage();pages.push(page);
@@ -40,13 +40,39 @@ function renderDocument({texto,nome,cpf,assinatura,estudio}){
   page.y+=17;
   drawLine('ASSINATURA DO CONTRATANTE',{size:26,bold:true,color:'#12233e',space:14});
   const sigImg=new Image();
-  // Signature is a data URL created in the click handler. Image drawing is asynchronous.
   return new Promise((resolve,reject)=>{
     sigImg.onload=()=>{
       const c=page.c;
-      c.strokeStyle='#a3afbd';c.lineWidth=2;c.strokeRect(M,page.y,W-2*M,170);
-      c.drawImage(sigImg,M+20,page.y+6,W-2*M-40,156);
-      page.y+=190;
+      // Cortar as bordas vazias do canvas sem distorcer a assinatura.
+      const sample=document.createElement('canvas');
+      sample.width=sigImg.naturalWidth;
+      sample.height=sigImg.naturalHeight;
+      const sc=sample.getContext('2d',{willReadFrequently:true});
+      sc.drawImage(sigImg,0,0);
+      const pixels=sc.getImageData(0,0,sample.width,sample.height).data;
+      let xMin=sample.width,yMin=sample.height,xMax=-1,yMax=-1;
+      for(let y=0;y<sample.height;y++){
+        for(let x=0;x<sample.width;x++){
+          if(pixels[(y*sample.width+x)*4+3]>28){
+            xMin=Math.min(xMin,x); xMax=Math.max(xMax,x);
+            yMin=Math.min(yMin,y); yMax=Math.max(yMax,y);
+          }
+        }
+      }
+      if(xMax<0){reject(new Error('Assinatura vazia.'));return;}
+      const srcW=xMax-xMin+1,srcH=yMax-yMin+1;
+      // A assinatura fica discreta: altura máxima de 90 px (no PDF de alta resolução).
+      // Respeitamos a proporção natural e evitamos ampliar além do original.
+      const maxW=490,maxH=95;
+      const factor=Math.min(maxW/srcW,maxH/srcH,1);
+      const dw=Math.max(1,srcW*factor),dh=Math.max(1,srcH*factor);
+      const boxX=M,boxY=page.y,boxW=W-2*M,boxH=147;
+      c.strokeStyle='#d6dee8';c.lineWidth=1.5;
+      c.strokeRect(boxX,boxY,boxW,boxH);
+      const destX=boxX+(boxW-dw)/2;
+      const destY=boxY+(boxH-dh)/2;
+      c.drawImage(sigImg,xMin,yMin,srcW,srcH,destX,destY,dw,dh);
+      page.y+=166;
       drawLine('Nome: '+nome,{size:21,space:0});
       drawLine('CPF: '+cpf,{size:21,space:0});
       drawLine('Aceite em: '+new Date().toLocaleString('pt-BR'),{size:21,space:0});

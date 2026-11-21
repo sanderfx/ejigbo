@@ -1,13 +1,18 @@
-FOTOPRO — CORRECAO DO ENVIO DE PDF
+FOTOPRO — ASSINATURA CORRIGIDA (VERSAO COMPLETA)
 
-O botao antigo Abrir e-mail foi removido: links mailto NAO anexam arquivos.
+O problema era o esticamento horizontal da assinatura no PDF.
+Nesta versao, a assinatura e recortada nas bordas vazias, mantem suas proporcoes,
+fica menor e centralizada. O canvas captura em resolucao mais alta.
 
-1. Edite config.js e coloque o nome do estudio, email e texto final do contrato.
-2. Envie index.html, style.css, config.js, app.js e pdf-local.js juntos para a pasta raiz do GitHub Pages.
-3. Atualize o site e faca um teste em um celular.
-4. Apos assinar, use Compartilhar PDF. Escolha um aplicativo de e-mail disponivel, confira o anexo e CONFIRME o envio.
-5. Se o compartilhamento com arquivo nao for suportado, o site baixa o PDF e orienta a anexar manualmente.
+INSTALACAO:
+1. Extraia este ZIP.
+2. No GitHub, substitua app.js e pdf-local.js na pasta onde esta index.html.
+3. Os outros arquivos estao incluidos caso precise do pacote completo.
+4. SE JA PERSONALIZOU SEU config.js, NAO O SUBSTITUA.
+5. Clique em Commit changes e atualize o site (Ctrl+F5).
+6. Faca uma nova assinatura de teste e baixe um novo PDF.
 
-IMPORTANTE: O site nao envia e-mail automaticamente e nao consegue confirmar entrega. Para envio automatico sem acoes do cliente, e necessario um servico de envio com backend ou API segura. Nao coloque senha de e-mail ou chave secreta em config.js ou em arquivos publicos do GitHub.
-
-O contrato em config.js e apenas um modelo demonstrativo. Revise juridicamente antes de uso real.
+O PDF antigo nao pode ser corrigido retroativamente: e preciso gerar outro.
+O PDF possui paginas em imagem, nao texto selecionavel.
+O compartilhamento por e-mail depende de acao do cliente e compatibilidade do celular.
+Nao ha envio automatico nem armazenamento no servidor.
