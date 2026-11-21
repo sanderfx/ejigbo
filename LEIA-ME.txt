@@ -1,0 +1,28 @@
+FOTOPRO SIMPLES - PACOTE COMPLETO
+
+PUBLIQUE TODOS ESTES ARQUIVOS JUNTOS NA RAIZ DO REPOSITORIO:
+index.html
+style.css
+config.js
+app.js
+pdf-local.js
+LEIA-ME.txt (opcional)
+
+PERSONALIZACAO:
+1. Abra config.js no GitHub e clique no lapis para editar.
+2. Altere nomeEstudio, emailDestino e textoContrato.
+3. Salve com Commit changes.
+4. Confira Settings > Pages > Deploy from a branch > main / (root).
+5. Atualize seu site com Ctrl+F5 e teste usando dados FICTICIOS.
+
+IMPORTANTE:
+- Nao ha login ou painel de fotografos nesta versao simples.
+- Nao precisa de Supabase, Node.js ou um arquivo .env.
+- CPF e assinatura sao processados no navegador, sem envio ao servidor.
+- O cliente salva o PDF e precisa compartilhar/enviar manualmente.
+- O botao Abrir e-mail NAO anexa automaticamente o PDF.
+- O PDF tem paginas em imagem, sem texto selecionavel.
+- Substitua o modelo de contrato antes de usar profissionalmente.
+- A assinatura desenhada nao verifica a identidade do cliente.
+- O gerador de PDF esta no arquivo pdf-local.js, sem biblioteca de terceiros.
+- Nao deixe arquivos antigos homonimos em subpastas esperando que sejam usados.
