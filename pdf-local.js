@@ -106,7 +106,7 @@ function renderDocument({texto,nome,cpf,assinatura,estudio,selfie}){
         drawLine('Selfie fornecida voluntariamente pelo contratante para compor esta copia do contrato.',{size:23,space:17});
         drawLine('Este registro nao comprova a titularidade do CPF e nao envolve reconhecimento facial.',{size:21,color:'#6b7789',space:20});
         // Escala unica para largura/altura, sem deformacao.
-        const maxW=W-2*M,maxH=850;
+        const maxW=W-2*M,maxH=450;
         const scale=Math.min(maxW/foto.naturalWidth,maxH/foto.naturalHeight);
         const drawW=Math.round(foto.naturalWidth*scale),drawH=Math.round(foto.naturalHeight*scale);
         const x=M+(maxW-drawW)/2,y=page.y+20;
